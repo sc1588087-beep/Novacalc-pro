@@ -1,9 +1,12 @@
-const CACHE_NAME = "calculadora-pro-v1";
+const CACHE_NAME = "novacalc-pro-v2";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
-  "./manifest.json"
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./splash.png"
 ];
 
 self.addEventListener("install", event => {
