@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Pro Premium</title>
+<style>
+:root{
+ --bg:#000; --panel:#111; --btn:#2c2c2e; --op:#ff9f0a; --text:#fff;
+}
+body.light{
+ --bg:#f4f4f4; --panel:#fff; --btn:#ddd; --text:#000;
+}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:var(--bg);color:var(--text);
+ display:flex;justify-content:center;align-items:center;
+ min-height:100vh;transition:.3s;
+}
+#splash{
+ position:fixed;inset:0;background:#000;color:#fff;
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ z-index:2000;transition:.5s;
+}
+#splash.hidden{opacity:0;pointer-events:none;}
+.calc{
+ width:min(390px,95vw);background:var(--panel);
+ border-radius:30px;padding:16px;
+ box-shadow:0 10px 40px rgba(0,0,0,.4);
+}
+.screen{
+ width:100%;height:90px;border:none;background:transparent;
+ color:var(--text);font-size:2rem;text-align:right;
+ outline:none;
+}
+.grid{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+}
+button{
+ border:none;border-radius:24px;padding:16px;
+ background:var(--btn);color:var(--text);
+ font-size:1rem;cursor:pointer;
+}
+button:active{transform:scale(.95);}
+.op{background:var(--op);color:#fff;}
+.equal{background:#34c759;}
+.zero{grid-column:span 2;}
+.sheet{
+ position:fixed;left:0;bottom:-100%;width:100%;
+ background:var(--panel);padding:20px;
+ border-radius:24px 24px 0 0;
+ transition:.35s;z-index:1000;
+}
+.sheet.show{bottom:0;}
+#overlay{
+ position:fixed;inset:0;background:rgba(0,0,0,.5);
+ opacity:0;pointer-events:none;transition:.3s;
+}
+#overlay.show{opacity:1;pointer-events:auto;}
+#history{max-height:120px;overflow:auto;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div id="splash">
+<h1>🧮 Calculadora Pro</h1>
+<p>Cargando...</p>
+</div>
+
+<div class="calc">
+<input class="screen" id="screen" readonly>
+
+<div class="grid">
+<button onclick="add('7')">7</button>
+<button onclick="add('8')">8</button>
+<button onclick="add('9')">9</button>
+<button class="op" onclick="add('/')">÷</button>
+
+<button onclick="add('4')">4</button>
+<button onclick="add('5')">5</button>
+<button onclick="add('6')">6</button>
+<button class="op" onclick="add('*')">×</button>
+
+<button onclick="add('1')">1</button>
+<button onclick="add('2')">2</button>
+<button onclick="add('3')">3</button>
+<button class="op" onclick="add('-')">−</button>
+
+<button onclick="add('0')" class="zero">0</button>
+<button onclick="add('.')">.</button>
+<button class="op" onclick="add('+')">+</button>
+
+<button onclick="sqrtCalc()">√</button>
+<button onclick="sinCalc()">sin</button>
+<button onclick="cosCalc()">cos</button>
+<button onclick="tanCalc()">tan</button>
+
+<button onclick="logCalc()">log</button>
+<button onclick="lnCalc()">ln</button>
+<button onclick="squareCalc()">x²</button>
+<button onclick="powerCalc()">xʸ</button>
+
+<button onclick="setConst(Math.PI)">π</button>
+<button onclick="setConst(Math.E)">e</button>
+<button onclick="clearAll()">AC</button>
+<button onclick="back()">⌫</button>
+
+<button class="equal" onclick="calculate()">=</button>
+<button onclick="openSheet()">⚙️</button>
+</div>
+</div>
+
+<div id="overlay" onclick="closeSheet()"></div>
+
+<div class="sheet" id="sheet">
+<h3>⚙️ Ajustes</h3>
+<button onclick="toggleTheme()">🌙 Modo claro/oscuro</button>
+<button onclick="toggleVibration()">📳 Vibración</button>
+<button onclick="clearHistory()">🧾 Borrar historial</button>
+<button onclick="closeSheet()">Cerrar</button>
+<div id="history"></div>
+</div>
+
+<script>
+const screen=document.getElementById('screen');
+let vibration=JSON.parse(localStorage.getItem('vibration')) ?? true;
+let history=JSON.parse(localStorage.getItem('history')) ?? [];
+
+function vibrate(){ if(vibration && navigator.vibrate) navigator.vibrate(20); }
+function add(v){ screen.value += v; vibrate(); }
+function clearAll(){ screen.value=''; }
+function back(){ screen.value=screen.value.slice(0,-1); }
+
+function saveHistory(text){
+ history.unshift(text);
+ localStorage.setItem('history', JSON.stringify(history));
+ renderHistory();
+}
+
+function calculate(){
+ try{
+   const result=eval(screen.value);
+   saveHistory(screen.value + " = " + result);
+   screen.value=result;
+ }catch{
+   screen.value='Error';
+ }
+}
+
+function currentValue(){ return Number(eval(screen.value || "0")); }
+function sqrtCalc(){ screen.value=Math.sqrt(currentValue()); }
+function sinCalc(){ screen.value=Math.sin(currentValue()*Math.PI/180); }
+function cosCalc(){ screen.value=Math.cos(currentValue()*Math.PI/180); }
+function tanCalc(){ screen.value=Math.tan(currentValue()*Math.PI/180); }
+function logCalc(){ screen.value=Math.log10(currentValue()); }
+function lnCalc(){ screen.value=Math.log(currentValue()); }
+function squareCalc(){ screen.value=currentValue()**2; }
+function powerCalc(){
+ const exp=prompt("Exponente:");
+ if(exp!==null) screen.value=currentValue() ** Number(exp);
+}
+function setConst(v){ screen.value=v; }
+
+function openSheet(){
+ sheet.classList.add('show');
+ overlay.classList.add('show');
+}
+function closeSheet(){
+ sheet.classList.remove('show');
+ overlay.classList.remove('show');
+}
+
+function toggleTheme(){
+ document.body.classList.toggle('light');
+ localStorage.setItem('theme',
+   document.body.classList.contains('light') ? 'light':'dark');
+}
+
+function toggleVibration(){
+ vibration=!vibration;
+ localStorage.setItem('vibration', JSON.stringify(vibration));
+}
+
+function renderHistory(){
+ document.getElementById('history').innerHTML=
+ history.map(h=>"<div>• "+h+"</div>").join('');
+}
+
+function clearHistory(){
+ history=[];
+ localStorage.removeItem('history');
+ renderHistory();
+}
+
+if(localStorage.getItem('theme')==='light'){
+ document.body.classList.add('light');
+}
+renderHistory();
+
+setTimeout(()=>{
+ document.getElementById('splash').classList.add('hidden');
+},1500);
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("sw.js")
+    .then(() => console.log("Service Worker registrado"))
+    .catch(error => console.error("Error:", error));
+}
+</script>
+
+</body>
+</html>
