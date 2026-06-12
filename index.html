@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora Pro Premium</title>
+<title>NovaCalc Pro</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
 :root{
  --bg:#000; --panel:#111; --btn:#2c2c2e; --op:#ff9f0a; --text:#fff;
@@ -63,8 +69,14 @@ button:active{transform:scale(.95);}
 <body>
 
 <div id="splash">
-<h1>🧮 Calculadora Pro</h1>
-<p>Cargando...</p>
+    <img src="splash.png" alt="NovaCalc Pro"
+         style="width:220px;max-width:80%;border-radius:25px;margin-bottom:20px;">
+
+    <h1>NovaCalc Pro</h1>
+
+    <p>Scientific Calculator</p>
+
+    <small>by Carlos</small>
 </div>
 
 <div class="calc">
